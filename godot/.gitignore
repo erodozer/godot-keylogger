@@ -3,4 +3,4 @@
 /android/
 
 # ignore prebuilt libs for git
-addons/keyloger/lib/*.so
+addons/keylogger/lib/*.so
