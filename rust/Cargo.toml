@@ -7,7 +7,9 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-evdev = "0.12.2"
-godot = { version = "0.2.2", features = ["experimental-threads"] }
-input = "0.9.1"
+godot = { version = "0.2.4", features = ["experimental-threads"] }
 libc = "0.2.169"
+
+[target.x86_64-unknown-linux-gnu.dependencies]
+evdev = "0.12.2"
+input = "0.9.1"

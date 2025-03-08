@@ -162,7 +162,7 @@ fn evdev_to_godot(keycode: evdev::Key) -> Option<GKey> {
 
 #[derive(GodotClass)]
 #[class(base=Node)]
-pub struct LibinputKeylogger {
+pub struct Keylogger {
     input: Libinput,
     keystate: HashMap<godot::global::Key, bool>,
     prev_keystate: HashMap<godot::global::Key, bool>,
@@ -171,7 +171,7 @@ pub struct LibinputKeylogger {
 }
 
 #[godot_api]
-impl INode for LibinputKeylogger {
+impl INode for Keylogger {
     fn init(base: Base<Node>) -> Self {
         let keystate = HashMap::new();
         let prev_keystate = HashMap::new();
@@ -223,7 +223,7 @@ impl INode for LibinputKeylogger {
 }
 
 #[godot_api]
-impl LibinputKeylogger {
+impl Keylogger {
 
     #[func]
     fn is_key_pressed(&mut self, keycode: GKey) -> bool {
