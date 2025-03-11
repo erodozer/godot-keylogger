@@ -1,6 +1,8 @@
 use godot::prelude::*;
 
 #[cfg(target_os = "windows")]
+mod noop;
+
 #[cfg(target_os = "macos")]
 mod noop;
 
