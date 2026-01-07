@@ -1,10 +1,10 @@
 [configuration]
 entry_symbol = "gdext_rust_init"
-compatibility_minimum = 4.3
+compatibility_minimum = 4.5
 reloadable = false
 
 [libraries]
-windows.debug.x86_64 =   "res://addons/keylogger/lib/libgodot_keylogger.debug.dll"
+windows.debug.x86_64 =   "res://addons/keylogger/lib/libgodot_keylogger.release.dll"
 windows.release.x86_64 = "res://addons/keylogger/lib/libgodot_keylogger.release.dll"
-linux.debug.x86_64 =     "res://addons/keylogger/lib/libgodot_keylogger.debug.so"
+linux.debug.x86_64 =     "res://addons/keylogger/lib/libgodot_keylogger.release.so"
 linux.release.x86_64 =   "res://addons/keylogger/lib/libgodot_keylogger.release.so"

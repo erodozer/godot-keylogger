@@ -2,7 +2,9 @@
 
 This is a stopgap solution for Godot to support Global input handling.  Useful for applications which should be able to read input while in the background.
 
-Currently only supports Linux by means of listening to LibInput/evdev
+Utilizes inputbot for cross platform input event handling.
+
+In Linux, libinput requires that the user be a member of the `input` group for security reasons in order to receive key events globally.  You can either add your user to the group, or execute the application with sudo if you trust it.
 
 ## Proposal References
 

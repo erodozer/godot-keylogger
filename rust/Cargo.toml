@@ -1,15 +1,15 @@
 [package]
 name = "godot-keylogger"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
+rust-version = "1.90"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-godot = { version = "0.2.4", features = ["experimental-threads"] }
+godot = { version = "0.4.5", features = ["experimental-threads"] }
 libc = "0.2.169"
-
-[target.x86_64-unknown-linux-gnu.dependencies]
-evdev = "0.12.2"
-input = "0.9.1"
+inputbot = { git = "https://github.com/erodozer/InputBot.git", branch = "develop" }
+strum = "*"
