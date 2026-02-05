@@ -18,6 +18,16 @@ You can build it by using
 cargo build
 ```
 
+When building for linux as the target you will also need the libinput and udev headers.
+
+In ubuntu
+
+```
+apt install libudev-dev libinput-dev
+```
+
+**Note: The repository does not include any precompiled binaries.  The demo will not function until you compile the extension yourself**
+
 # Using the Extension
 
 It's expected that you enable the Plugin for the extension, which adds a LibinputKeylogger autoload to your project under the name of "GlobalInput"
@@ -33,4 +43,21 @@ func _process(delta):
         print("hello alice")
     elif GlobalInput.is_key_pressed(KEY_A):
         print("hello bob")
+```
+
+## Input is not Detected (Linux)
+
+Some distributions do not have users added to the required libinput group by default for security purposes (prevent keylogging apps).
+
+
+To fix this, you can sudo with the input group each time you run the app.
+
+```
+sudo -g input -u <username> open_vt.x86_64
+```
+
+Or you can permanently add the input group to the user you wish to run the application under with usermod.  (This is less secure, but you only have to do it once)
+
+```
+sudo usermod -a -G input <username>
 ```
