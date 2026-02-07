@@ -40,6 +40,149 @@ impl LibinputInterface for Interface {
 // statement anyway.  This is the optimal way to do this.
 fn evdev_to_godot(keycode: evdev::Key) -> Option<GKey> {
     match keycode {
+        // GKey::NONE
+        // GKey::SPECIAL
+        EKey::KEY_ESC => Some(GKey::ESCAPE),
+        EKey::KEY_TAB => Some(GKey::TAB),
+        // GKey::BACKTAB
+        EKey::KEY_BACKSPACE => Some(GKey::BACKSPACE),
+        EKey::KEY_ENTER => Some(GKey::ENTER),
+        EKey::KEY_KPENTER => Some(GKey::KP_ENTER),
+        EKey::KEY_INSERT => Some(GKey::INSERT),
+        EKey::KEY_DELETE => Some(GKey::DELETE),
+        EKey::KEY_PAUSE => Some(GKey::PAUSE),
+        EKey::KEY_PRINT => Some(GKey::PRINT),
+        EKey::KEY_SYSRQ => Some(GKey::SYSREQ),
+        EKey::KEY_CLEAR => Some(GKey::CLEAR),
+        EKey::KEY_HOME => Some(GKey::HOME),
+        EKey::KEY_END => Some(GKey::END),
+        EKey::KEY_LEFT => Some(GKey::LEFT),
+        EKey::KEY_UP => Some(GKey::UP),
+        EKey::KEY_RIGHT => Some(GKey::RIGHT),
+        EKey::KEY_DOWN => Some(GKey::DOWN),
+        EKey::KEY_PAGEUP => Some(GKey::PAGEUP),
+        EKey::KEY_PAGEDOWN => Some(GKey::PAGEDOWN),
+        EKey::KEY_LEFTSHIFT => Some(GKey::SHIFT),
+        EKey::KEY_RIGHTSHIFT => Some(GKey::SHIFT),
+        EKey::KEY_LEFTCTRL => Some(GKey::CTRL),
+        EKey::KEY_RIGHTCTRL => Some(GKey::CTRL),
+        // GKey::META
+        EKey::KEY_LEFTALT => Some(GKey::ALT),
+        EKey::KEY_RIGHTALT => Some(GKey::ALT),
+        EKey::KEY_CAPSLOCK => Some(GKey::CAPSLOCK),
+        EKey::KEY_NUMLOCK => Some(GKey::NUMLOCK),
+        EKey::KEY_SCROLLLOCK => Some(GKey::SCROLLLOCK),
+        EKey::KEY_F1 => Some(GKey::F1),
+        EKey::KEY_F2 => Some(GKey::F2),
+        EKey::KEY_F3 => Some(GKey::F3),
+        EKey::KEY_F4 => Some(GKey::F4),
+        EKey::KEY_F5 => Some(GKey::F5),
+        EKey::KEY_F6 => Some(GKey::F6),
+        EKey::KEY_F7 => Some(GKey::F7),
+        EKey::KEY_F8 => Some(GKey::F8),
+        EKey::KEY_F9 => Some(GKey::F9),
+        EKey::KEY_F10 => Some(GKey::F10),
+        EKey::KEY_F11 => Some(GKey::F11),
+        EKey::KEY_F12 => Some(GKey::F12),
+        EKey::KEY_F13 => Some(GKey::F13),
+        EKey::KEY_F14 => Some(GKey::F14),
+        EKey::KEY_F15 => Some(GKey::F15),
+        EKey::KEY_F16 => Some(GKey::F16),
+        EKey::KEY_F17 => Some(GKey::F17),
+        EKey::KEY_F18 => Some(GKey::F18),
+        EKey::KEY_F19 => Some(GKey::F19),
+        EKey::KEY_F20 => Some(GKey::F20),
+        EKey::KEY_F21 => Some(GKey::F21),
+        EKey::KEY_F22 => Some(GKey::F22),
+        EKey::KEY_F23 => Some(GKey::F23),
+        EKey::KEY_F24 => Some(GKey::F24),
+        // GKey::F25
+        // GKey::F26
+        // GKey::F27
+        // GKey::F28
+        // GKey::F29
+        // GKey::F30
+        // GKey::F31
+        // GKey::F32
+        // GKey::F33
+        // GKey::F34
+        // GKey::F35
+        EKey::KEY_KPASTERISK => Some(GKey::KP_MULTIPLY),
+        EKey::KEY_KPSLASH => Some(GKey::KP_DIVIDE),
+        EKey::KEY_KPMINUS => Some(GKey::KP_SUBTRACT),
+        EKey::KEY_KPDOT => Some(GKey::KP_PERIOD),
+        EKey::KEY_KPPLUS => Some(GKey::KP_ADD),
+        EKey::KEY_KP0 => Some(GKey::KP_0),
+        EKey::KEY_KP1 => Some(GKey::KP_1),
+        EKey::KEY_KP2 => Some(GKey::KP_2),
+        EKey::KEY_KP3 => Some(GKey::KP_3),
+        EKey::KEY_KP4 => Some(GKey::KP_4),
+        EKey::KEY_KP5 => Some(GKey::KP_5),
+        EKey::KEY_KP6 => Some(GKey::KP_6),
+        EKey::KEY_KP7 => Some(GKey::KP_7),
+        EKey::KEY_KP8 => Some(GKey::KP_8),
+        EKey::KEY_KP9 => Some(GKey::KP_9),
+        // GKey::MENU
+        // GKey::HYPER
+        EKey::KEY_HELP => Some(GKey::HELP),
+        EKey::KEY_BACK => Some(GKey::BACK),
+        EKey::KEY_FORWARD => Some(GKey::FORWARD),
+        // GKey::STOP
+        EKey::KEY_REFRESH => Some(GKey::REFRESH),
+        EKey::KEY_VOLUMEDOWN => Some(GKey::VOLUMEDOWN),
+        EKey::KEY_VOLUMEUP => Some(GKey::VOLUMEUP),
+        EKey::KEY_PLAYPAUSE => Some(GKey::MEDIAPLAY),
+        EKey::KEY_STOP => Some(GKey::MEDIASTOP),
+        EKey::KEY_PREVIOUS => Some(GKey::MEDIAPREVIOUS),
+        EKey::KEY_PREVIOUSSONG => Some(GKey::MEDIAPREVIOUS),
+        EKey::KEY_NEXT => Some(GKey::MEDIANEXT),
+        EKey::KEY_NEXTSONG => Some(GKey::MEDIANEXT),
+        EKey::KEY_RECORD => Some(GKey::MEDIARECORD),
+        EKey::KEY_HOMEPAGE => Some(GKey::HOMEPAGE),
+        EKey::KEY_FAVORITES => Some(GKey::FAVORITES),
+        EKey::KEY_SEARCH => Some(GKey::SEARCH),
+        // GKey::STANDBY
+        EKey::KEY_WWW => Some(GKey::OPENURL),
+        EKey::KEY_MAIL => Some(GKey::LAUNCHMAIL),
+        EKey::KEY_EMAIL => Some(GKey::LAUNCHMAIL),
+        EKey::KEY_MEDIA => Some(GKey::LAUNCHMEDIA),
+        // GKey::LAUNCH0
+        // GKey::LAUNCH1
+        // GKey::LAUNCH2
+        // GKey::LAUNCH3
+        // GKey::LAUNCH4
+        // GKey::LAUNCH5
+        // GKey::LAUNCH6
+        // GKey::LAUNCH7
+        // GKey::LAUNCH8
+        // GKey::LAUNCH9
+        // GKey::LAUNCHA
+        // GKey::LAUNCHB
+        // GKey::LAUNCHC
+        // GKey::LAUNCHD
+        // GKey::LAUNCHE
+        // GKey::LAUNCHF
+        // GKey::GLOBE
+        // GKey::KEYBOARD
+        // GKey::JIS_EISU
+        // GKey::JIS_KANA
+        // GKey::UNKNOWN
+        EKey::KEY_SPACE => Some(GKey::SPACE),
+        // GKey::EXCLAM
+        // GKey::QUOTEDBL
+        // GKey::NUMBERSIGN
+        EKey::KEY_DOLLAR => Some(GKey::DOLLAR),
+        // GKey::PERCENT
+        // GKey::AMPERSAND
+        EKey::KEY_APOSTROPHE => Some(GKey::APOSTROPHE),
+        EKey::KEY_KPLEFTPAREN => Some(GKey::PARENLEFT),
+        EKey::KEY_KPRIGHTPAREN => Some(GKey::PARENRIGHT),
+        // GKey::ASTERISK
+        // GKey::PLUS
+        EKey::KEY_COMMA => Some(GKey::COMMA),
+        EKey::KEY_MINUS => Some(GKey::MINUS),
+        EKey::KEY_DOT => Some(GKey::PERIOD),
+        EKey::KEY_SLASH => Some(GKey::SLASH),
         EKey::KEY_0 => Some(GKey::KEY_0),
         EKey::KEY_1 => Some(GKey::KEY_1),
         EKey::KEY_2 => Some(GKey::KEY_2),
@@ -50,6 +193,13 @@ fn evdev_to_godot(keycode: evdev::Key) -> Option<GKey> {
         EKey::KEY_7 => Some(GKey::KEY_7),
         EKey::KEY_8 => Some(GKey::KEY_8),
         EKey::KEY_9 => Some(GKey::KEY_9),
+        // GKey::COLON
+        EKey::KEY_SEMICOLON => Some(GKey::SEMICOLON),
+        // GKey::LESS
+        EKey::KEY_EQUAL => Some(GKey::EQUAL),
+        // GKey::GREATER
+        EKey::KEY_QUESTION => Some(GKey::QUESTION),
+        // GKey::AT
         EKey::KEY_A => Some(GKey::A),
         EKey::KEY_B => Some(GKey::B),
         EKey::KEY_C => Some(GKey::C),
@@ -76,83 +226,18 @@ fn evdev_to_godot(keycode: evdev::Key) -> Option<GKey> {
         EKey::KEY_X => Some(GKey::X),
         EKey::KEY_Y => Some(GKey::Y),
         EKey::KEY_Z => Some(GKey::Z),
+        // GKey::BRACKETLEFT
         EKey::KEY_BACKSLASH => Some(GKey::BACKSLASH),
-        EKey::KEY_COMMA => Some(GKey::COMMA),
-        EKey::KEY_SEMICOLON => Some(GKey::SEMICOLON),
-        EKey::KEY_APOSTROPHE => Some(GKey::APOSTROPHE),
-        EKey::KEY_GRAVE => Some(GKey::ASCIITILDE),
-        EKey::KEY_QUESTION => Some(GKey::QUESTION),
-        EKey::KEY_DOLLAR => Some(GKey::DOLLAR),
+        // GKey::BRACKETRIGHT
+        // GKey::ASCIICIRCUM
+        // GKey::UNDERSCORE
+        // GKey::QUOTELEFT
         EKey::KEY_LEFTBRACE => Some(GKey::BRACELEFT),
+        // GKey::BAR
         EKey::KEY_RIGHTBRACE => Some(GKey::BRACERIGHT),
-        EKey::KEY_KPLEFTPAREN => Some(GKey::PARENLEFT),
-        EKey::KEY_KPRIGHTPAREN => Some(GKey::PARENRIGHT),
-        EKey::KEY_SLASH => Some(GKey::SLASH),
-        EKey::KEY_EQUAL => Some(GKey::EQUAL),
-        // function keys
-        EKey::KEY_F1 => Some(GKey::F1),
-        EKey::KEY_F2 => Some(GKey::F2),
-        EKey::KEY_F3 => Some(GKey::F3),
-        EKey::KEY_F4 => Some(GKey::F4),
-        EKey::KEY_F5 => Some(GKey::F5),
-        EKey::KEY_F6 => Some(GKey::F6),
-        EKey::KEY_F7 => Some(GKey::F7),
-        EKey::KEY_F8 => Some(GKey::F8),
-        EKey::KEY_F9 => Some(GKey::F9),
-        EKey::KEY_F10 => Some(GKey::F10),
-        EKey::KEY_F11 => Some(GKey::F11),
-        EKey::KEY_F12 => Some(GKey::F12),
-        // control buttons
-        EKey::KEY_ESC => Some(GKey::ESCAPE),
-        EKey::KEY_TAB => Some(GKey::TAB),
-        EKey::KEY_SPACE => Some(GKey::SPACE),
-        EKey::KEY_BACKSPACE => Some(GKey::BACKSPACE),
-        EKey::KEY_LEFTCTRL => Some(GKey::CTRL),
-        EKey::KEY_RIGHTCTRL => Some(GKey::CTRL),
-        EKey::KEY_LEFTALT => Some(GKey::ALT),
-        EKey::KEY_RIGHTALT => Some(GKey::ALT),
-        EKey::KEY_LEFTSHIFT => Some(GKey::SHIFT),
-        EKey::KEY_RIGHTSHIFT => Some(GKey::SHIFT),
-        EKey::KEY_ENTER => Some(GKey::ENTER),
-        EKey::KEY_LEFT => Some(GKey::LEFT),
-        EKey::KEY_UP => Some(GKey::UP),
-        EKey::KEY_RIGHT => Some(GKey::RIGHT),
-        EKey::KEY_DOWN => Some(GKey::DOWN),
-        EKey::KEY_PAGEDOWN => Some(GKey::PAGEDOWN),
-        EKey::KEY_PAGEUP => Some(GKey::PAGEUP),
-        EKey::KEY_INSERT => Some(GKey::INSERT),
-        EKey::KEY_HOME => Some(GKey::HOME),
-        EKey::KEY_END => Some(GKey::END),
-        EKey::KEY_CAPSLOCK => Some(GKey::CAPSLOCK),
-        EKey::KEY_NUMLOCK => Some(GKey::NUMLOCK),
-        EKey::KEY_SCROLLLOCK => Some(GKey::SCROLLLOCK),
-        // media buttons
-        EKey::KEY_PLAYPAUSE => Some(GKey::MEDIAPLAY),
-        EKey::KEY_RECORD => Some(GKey::MEDIARECORD),
-        EKey::KEY_STOP => Some(GKey::MEDIASTOP),
-        EKey::KEY_NEXT => Some(GKey::MEDIANEXT),
-        EKey::KEY_NEXTSONG => Some(GKey::MEDIANEXT),
-        EKey::KEY_PREVIOUS => Some(GKey::MEDIAPREVIOUS),
-        EKey::KEY_PREVIOUSSONG => Some(GKey::MEDIAPREVIOUS),
-        EKey::KEY_VOLUMEUP => Some(GKey::VOLUMEUP),
-        EKey::KEY_VOLUMEDOWN => Some(GKey::VOLUMEDOWN),
-        // keypad
-        EKey::KEY_KP0 => Some(GKey::KP_0),
-        EKey::KEY_KP1 => Some(GKey::KP_1),
-        EKey::KEY_KP2 => Some(GKey::KP_2),
-        EKey::KEY_KP3 => Some(GKey::KP_3),
-        EKey::KEY_KP4 => Some(GKey::KP_4),
-        EKey::KEY_KP5 => Some(GKey::KP_5),
-        EKey::KEY_KP6 => Some(GKey::KP_6),
-        EKey::KEY_KP7 => Some(GKey::KP_7),
-        EKey::KEY_KP8 => Some(GKey::KP_8),
-        EKey::KEY_KP9 => Some(GKey::KP_9),
-        EKey::KEY_KPASTERISK => Some(GKey::KP_MULTIPLY),
-        EKey::KEY_KPSLASH => Some(GKey::KP_DIVIDE),
-        EKey::KEY_KPPLUS => Some(GKey::KP_ADD),
-        EKey::KEY_KPDOT => Some(GKey::KP_PERIOD),
-        EKey::KEY_KPMINUS => Some(GKey::KP_SUBTRACT),
-        EKey::KEY_KPENTER => Some(GKey::ENTER),
+        EKey::KEY_GRAVE => Some(GKey::ASCIITILDE),
+        EKey::KEY_YEN => Some(GKey::YEN),
+        // GKey::SECTION
 
         // TODO some buttons are missing from evdev, instead expecting modifiers to map them
         _ => None
