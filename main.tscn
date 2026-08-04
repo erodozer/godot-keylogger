@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://1netgite4ki3"]
+[gd_scene format=3 uid="uid://1netgite4ki3"]
 
 [sub_resource type="GDScript" id="GDScript_4nulg"]
 script/source = "extends Node
@@ -12,5 +12,5 @@ func _process(_delta):
 		print(\"hello bob\")
 "
 
-[node name="Node" type="Node"]
+[node name="Node" type="Node" unique_id=1287234557]
 script = SubResource("GDScript_4nulg")

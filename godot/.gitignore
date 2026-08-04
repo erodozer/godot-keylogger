@@ -1,6 +1,0 @@
-# Godot 4+ specific ignores
-.godot/
-/android/
-
-# ignore prebuilt libs for git
-addons/keylogger/lib/*

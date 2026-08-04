@@ -1,7 +1,7 @@
 // under Linux/BSD, use libinput to track global input state
-
+use godot::prelude::{GodotClass, Base, INode, godot_api};
+use godot::classes::Node;
 use evdev::EvdevEnum;
-use godot::prelude::*;
 
 use input::event::keyboard::{KeyboardEventTrait, KeyState};
 use input::{Libinput, LibinputInterface};
@@ -13,8 +13,7 @@ use std::collections::HashMap;
 
 use godot::global::Key as GKey;
 
-use evdev;
-use evdev::Key as EKey;
+use evdev::KeyCode as EKey;
 
 struct Interface;
 
@@ -38,7 +37,7 @@ impl LibinputInterface for Interface {
 // rust doesn't support static maps out of the box, and alternatives like phf
 // require too much work for something that'll just codegen/unwrap to a match
 // statement anyway.  This is the optimal way to do this.
-fn evdev_to_godot(keycode: evdev::Key) -> Option<GKey> {
+fn evdev_to_godot(keycode: EKey) -> Option<GKey> {
     match keycode {
         // GKey::NONE
         // GKey::SPECIAL
@@ -246,9 +245,9 @@ fn evdev_to_godot(keycode: evdev::Key) -> Option<GKey> {
 
 
 #[derive(GodotClass)]
-#[class(base=Node)]
+#[class(init, base=Node)]
 pub struct Keylogger {
-    input: Libinput,
+    input: Option<Libinput>,
     keystate: HashMap<godot::global::Key, bool>,
     prev_keystate: HashMap<godot::global::Key, bool>,
     hold_keystate: HashMap<godot::global::Key, bool>,
@@ -257,32 +256,27 @@ pub struct Keylogger {
 
 #[godot_api]
 impl INode for Keylogger {
-    fn init(base: Base<Node>) -> Self {
-        let keystate = HashMap::new();
-        let prev_keystate = HashMap::new();
-        let hold_keystate = HashMap::new();
-
+    fn ready(&mut self) {
         let mut input = Libinput::new_with_udev(Interface);
-        input.udev_assign_seat("seat0").unwrap();
-            
-        Self {
-            input,
-            keystate,
-            prev_keystate,
-            hold_keystate,
-            base
+        if let Ok(_) = input.udev_assign_seat("seat0") {
+            self.input = Some(input);
         }
     }
 
     fn process(&mut self, _delta: f64) {
+        if self.input.is_none() {
+            return;
+        }
+
         // receive event from libinput, polling once per process frame
         // we only care about keyboard messages for keylogger
-        self.input.dispatch().unwrap();
+        let mut input = self.input.clone().unwrap();
+        input.dispatch().unwrap();
 
         self.prev_keystate = self.keystate.clone();
         self.hold_keystate.clear();
 
-        for event in &mut self.input {
+        for event in &mut input {
             match event {
                 input::Event::Keyboard(event) => {
                     let keycode = EKey::from_index(event.key() as usize);
