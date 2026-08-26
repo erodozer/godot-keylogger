@@ -1,4 +1,4 @@
-use godot::prelude::*;
+mod keylogger;
 
 #[cfg(target_os = "windows")]
 mod noop;
@@ -8,11 +8,3 @@ mod noop;
 
 #[cfg(target_os = "linux")]
 mod linuxbsd;
-
-struct MyExtension;
-
-#[gdextension]
-unsafe impl ExtensionLibrary for MyExtension {
-
-}
-

@@ -1,8 +1,7 @@
-use godot::classes::class_macros::private::virtuals::ZipReader::Vector2;
+use godot::prelude::*;
+use godot::init::ExtensionLibrary;
 use godot::obj::Singleton;
-// under Linux/BSD, use libinput to track global input state
-use godot::prelude::{GodotClass, Base, INode, godot_api};
-use godot::classes::{DisplayServer, Node};
+use godot::classes::{DisplayServer, Engine};
 use evdev::EvdevEnum;
 
 use input::event::keyboard::{KeyboardEventTrait, KeyState};
@@ -12,11 +11,11 @@ use libc::{O_RDONLY, O_RDWR, O_WRONLY};
 use std::fs::{File, OpenOptions};
 use std::os::unix::{fs::OpenOptionsExt, io::OwnedFd};
 use std::path::Path;
-use std::collections::HashMap;
 
-use godot::global::{Key as GKey, MouseButton};
-
+use godot::global::{Key as GKey, MouseButton, inverse_lerp};
 use evdev::KeyCode as EKey;
+
+use crate::keylogger::{GlobalInput, KeyloggerExtension};
 
 struct Interface;
 
@@ -246,46 +245,51 @@ fn evdev_to_godot(keycode: EKey) -> Option<GKey> {
     }
 }
 
-
 #[derive(GodotClass)]
-#[class(init, base=Node)]
-pub struct Keylogger {
+#[class(init, singleton, base = Object)]
+struct LibInputHolder {
     input: Option<Libinput>,
-    
-    keystate: HashMap<godot::global::Key, bool>,
-    prev_keystate: HashMap<godot::global::Key, bool>,
-    hold_keystate: HashMap<godot::global::Key, bool>,
-
-    mousestate: HashMap<godot::global::MouseButton, bool>,
-    mouseposition: Vector2,
-    
-    penpressure: f32,
-
-
-    base: Base<Node>,
 }
 
-#[godot_api]
-impl INode for Keylogger {
-    fn ready(&mut self) {
-        let mut input = Libinput::new_with_udev(Interface);
-        if let Ok(_) = input.udev_assign_seat("seat0") {
-            self.input = Some(input);
+#[gdextension]
+unsafe impl ExtensionLibrary for KeyloggerExtension {
+    fn on_stage_init(stage: InitStage) {
+        match stage {
+            InitStage::MainLoop => {
+                let mut input = Libinput::new_with_udev(Interface);
+                input.udev_assign_seat("seat0").unwrap();
+                LibInputHolder::singleton().bind_mut().input = Some(input);
+
+                // disable standard real-time listener to prefer libinput updates
+                let mut singleton = GlobalInput::singleton();
+                let mut gi = singleton.bind_mut();
+                let mut gi_base= gi.base_mut();
+                gi_base.set_process(false);
+                gi_base.set_process_input(false);
+            }
+            _ => {}
         }
     }
 
-    fn process(&mut self, _delta: f64) {
-        if self.input.is_none() {
+    // listen to events from libinput to read directly from hardware,
+    // allowing for Input event updates to process from outside of the window
+    // receives events from libinput by polling once per process frame
+    fn on_main_loop_frame() {
+        if Engine::singleton().is_editor_hint() {
             return;
         }
 
-        // receive event from libinput, polling once per process frame
-        // we only care about keyboard messages for keylogger
-        let mut input = self.input.clone().unwrap();
+        let Some(mut input) = LibInputHolder::singleton().bind().input.clone() else {
+            godot_error!("libinput not initialized");
+            return; 
+        };
         input.dispatch().unwrap();
 
-        self.prev_keystate = self.keystate.clone();
-        self.hold_keystate.clear();
+        let mut singleton = GlobalInput::singleton();
+        let mut kl = singleton.bind_mut();
+
+        kl.prev_keystate = kl.keystate.clone();
+        kl.hold_keystate.clear();
 
         for event in &mut input {
             match event {
@@ -297,70 +301,77 @@ impl INode for Keylogger {
                             KeyState::Released => false
                         };
 
-                        let prev_state = match self.prev_keystate.get(&godotkey) {
+                        let prev_state = match kl.prev_keystate.get(&godotkey) {
                             Some(res) => *res,
                             _ => false
                         };
 
-                        self.keystate.insert(godotkey, pressed);
-                        self.hold_keystate.insert(godotkey, pressed && prev_state);
+                        kl.keystate.insert(godotkey, pressed);
+                        kl.hold_keystate.insert(godotkey, pressed && prev_state);
                     }
                 }
+                // for mice/touchpads
+                input::Event::Pointer(input::event::PointerEvent::Motion(event)) => {
+                    let dimensions: Vector2 = DisplayServer::singleton().screen_get_size().cast_float();
+                    let mut position = kl.mouseposition;
+                    let scaled = Vector2 {
+                        x: event.dx() as f32,
+                        y: event.dy() as f32,
+                    } / (dimensions / 2.0);
+                    position += scaled;
+                    position = position.clamp(Vector2 { x: -1.0, y: -1.0 }, Vector2 { x: 1.0, y: 1.0 });
+
+                    kl.mouseposition = position;
+                }
+                // for touch screens
                 input::Event::Pointer(input::event::PointerEvent::MotionAbsolute(event)) => {
                     let dimensions = DisplayServer::singleton().screen_get_size();
-                    self.mouseposition = Vector2 {
-                        x: event.absolute_x_transformed(dimensions.x as u32) as f32,
-                        y: event.absolute_y_transformed(dimensions.y as u32) as f32,
-                    }
+                    let screen_half = dimensions.cast_float() / 2.0;
+                    let x = event.absolute_x_transformed(dimensions.x as u32);
+                    let y = event.absolute_y_transformed(dimensions.y as u32);
+                    let scaled = Vector2 {
+                        x: inverse_lerp(screen_half.x as f64, dimensions.x as f64, x) as f32,
+                        y: inverse_lerp(screen_half.y as f64, dimensions.y as f64, y) as f32,
+                    };
+
+                    kl.mouseposition = scaled;
                 }
                 input::Event::Pointer(input::event::PointerEvent::Button(event)) => {
-                    let btn = match event.button() {
-                        0 => MouseButton::LEFT,
-                        1 => MouseButton::MIDDLE,
-                        2 => MouseButton::RIGHT,
+                    let btn = match EKey::from_index(event.button() as usize) {
+                        EKey::BTN_LEFT => MouseButton::LEFT,
+                        EKey::BTN_MIDDLE => MouseButton::MIDDLE,
+                        EKey::BTN_RIGHT => MouseButton::RIGHT,
                         _ => continue
                     };
-                    self.mousestate.insert(btn, event.button_state() == input::event::pointer::ButtonState::Pressed);
+                    kl.mousestate.insert(btn, event.button_state() == input::event::pointer::ButtonState::Pressed);
                 }
+                // for tablets
                 input::Event::Tablet(input::event::TabletToolEvent::Axis(event)) => {
-                    self.penpressure = event.pressure() as f32;
+                    kl.penpressure = event.pressure() as f32;
+                    
+                    let dimensions: Vector2i = DisplayServer::singleton().screen_get_size();
+                    let x = event.x_transformed(dimensions.x as u32);
+                    let y = event.y_transformed(dimensions.y as u32);
+                    let screen_half = dimensions.cast_float() / 2.0;
+                    let scaled = Vector2 {
+                        x: inverse_lerp(screen_half.x as f64, dimensions.x as f64, x) as f32,
+                        y: inverse_lerp(screen_half.y as f64, dimensions.y as f64, y) as f32,
+                    };
+                    kl.mouseposition = scaled;
                 }
                 _ => {}
             }
         }
     }
-}
 
-#[godot_api]
-impl Keylogger {
-
-    #[func]
-    fn is_key_pressed(&self, keycode: GKey) -> bool {
-        // map godot keycode to evdev keycode
-        *self.keystate.get(&keycode).unwrap_or(&false)
-    }
-
-    #[func]
-    fn is_key_released(&mut self, keycode: GKey) -> bool {
-        !self.is_key_pressed(keycode)
-    }
-
-    #[func]
-    fn is_key_just_pressed(&mut self, keycode: GKey) -> bool {
-        // map godot keycode to evdev keycode
-        match self.hold_keystate.get(&keycode) {
-            Some(false) => self.is_key_pressed(keycode),
-            _ => false
-        }
-    }
-
-    #[func]
-    fn is_mouse_button_pressed(&self, button: MouseButton) -> bool {
-        *self.mousestate.get(&button).unwrap_or(&false)
-    }
-
-    #[func]
-    fn get_pen_pressure(&self) -> f32 {
-        self.penpressure
+    fn on_stage_deinit(stage: InitStage) {
+        match stage {
+            InitStage::Scene => {
+                if let Some(input) = &LibInputHolder::singleton().bind_mut().input {
+                    input.suspend();
+                }
+            },
+            _ => {}
+        }   
     }
 }
