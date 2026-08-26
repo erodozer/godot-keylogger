@@ -1,9 +1,12 @@
+use godot::classes::class_macros::private::virtuals::ZipReader::Vector2;
+use godot::obj::Singleton;
 // under Linux/BSD, use libinput to track global input state
 use godot::prelude::{GodotClass, Base, INode, godot_api};
-use godot::classes::Node;
+use godot::classes::{DisplayServer, Node};
 use evdev::EvdevEnum;
 
 use input::event::keyboard::{KeyboardEventTrait, KeyState};
+use input::event::tablet_tool::TabletToolEventTrait;
 use input::{Libinput, LibinputInterface};
 use libc::{O_RDONLY, O_RDWR, O_WRONLY};
 use std::fs::{File, OpenOptions};
@@ -11,7 +14,7 @@ use std::os::unix::{fs::OpenOptionsExt, io::OwnedFd};
 use std::path::Path;
 use std::collections::HashMap;
 
-use godot::global::Key as GKey;
+use godot::global::{Key as GKey, MouseButton};
 
 use evdev::KeyCode as EKey;
 
@@ -248,9 +251,17 @@ fn evdev_to_godot(keycode: EKey) -> Option<GKey> {
 #[class(init, base=Node)]
 pub struct Keylogger {
     input: Option<Libinput>,
+    
     keystate: HashMap<godot::global::Key, bool>,
     prev_keystate: HashMap<godot::global::Key, bool>,
     hold_keystate: HashMap<godot::global::Key, bool>,
+
+    mousestate: HashMap<godot::global::MouseButton, bool>,
+    mouseposition: Vector2,
+    
+    penpressure: f32,
+
+
     base: Base<Node>,
 }
 
@@ -295,6 +306,25 @@ impl INode for Keylogger {
                         self.hold_keystate.insert(godotkey, pressed && prev_state);
                     }
                 }
+                input::Event::Pointer(input::event::PointerEvent::MotionAbsolute(event)) => {
+                    let dimensions = DisplayServer::singleton().screen_get_size();
+                    self.mouseposition = Vector2 {
+                        x: event.absolute_x_transformed(dimensions.x as u32) as f32,
+                        y: event.absolute_y_transformed(dimensions.y as u32) as f32,
+                    }
+                }
+                input::Event::Pointer(input::event::PointerEvent::Button(event)) => {
+                    let btn = match event.button() {
+                        0 => MouseButton::LEFT,
+                        1 => MouseButton::MIDDLE,
+                        2 => MouseButton::RIGHT,
+                        _ => continue
+                    };
+                    self.mousestate.insert(btn, event.button_state() == input::event::pointer::ButtonState::Pressed);
+                }
+                input::Event::Tablet(input::event::TabletToolEvent::Axis(event)) => {
+                    self.penpressure = event.pressure() as f32;
+                }
                 _ => {}
             }
         }
@@ -305,12 +335,9 @@ impl INode for Keylogger {
 impl Keylogger {
 
     #[func]
-    fn is_key_pressed(&mut self, keycode: GKey) -> bool {
+    fn is_key_pressed(&self, keycode: GKey) -> bool {
         // map godot keycode to evdev keycode
-        match self.keystate.get(&keycode) {
-            Some(res) => *res,
-            _ => false
-        }
+        *self.keystate.get(&keycode).unwrap_or(&false)
     }
 
     #[func]
@@ -325,5 +352,15 @@ impl Keylogger {
             Some(false) => self.is_key_pressed(keycode),
             _ => false
         }
+    }
+
+    #[func]
+    fn is_mouse_button_pressed(&self, button: MouseButton) -> bool {
+        *self.mousestate.get(&button).unwrap_or(&false)
+    }
+
+    #[func]
+    fn get_pen_pressure(&self) -> f32 {
+        self.penpressure
     }
 }
