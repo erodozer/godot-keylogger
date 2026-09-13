@@ -2,8 +2,7 @@
 // depending on the OS, more than likely it'll only capture input when the window has focus
 
 use godot::prelude::*;
-use godot::classes::Engine;
-use crate::keylogger::{Keylogger, SINGLETON_NAME, KeyloggerExtension};
+use crate::keylogger::KeyloggerExtension;
 
 #[gdextension]
 unsafe impl ExtensionLibrary for KeyloggerExtension {
